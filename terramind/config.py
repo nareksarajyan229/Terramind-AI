@@ -46,6 +46,8 @@ class Settings:
     gee_project: str = field(default_factory=lambda: _get("GEE_PROJECT"))
     gee_service_account: str = field(default_factory=lambda: _get("GEE_SERVICE_ACCOUNT"))
     gee_key_file: str = field(default_factory=lambda: _get("GEE_KEY_FILE"))
+    # Full service-account JSON key as text (for Streamlit Cloud Secrets, where no key file can be uploaded)
+    gee_key_json: str = field(default_factory=lambda: _get("GEE_SERVICE_ACCOUNT_JSON"))
     yolo_weights: str = field(default_factory=lambda: _get("YOLO_WEIGHTS", str(MODELS_DIR / "terramind_yolo.pt")))
     seg_weights: str = field(default_factory=lambda: _get("SEG_WEIGHTS", str(MODELS_DIR / "terramind_unet.pt")))
     hansen_asset: str = field(default_factory=lambda: _get("HANSEN_ASSET", "UMD/hansen/global_forest_change_2023_v1_11"))

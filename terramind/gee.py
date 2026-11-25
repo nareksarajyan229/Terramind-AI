@@ -46,15 +46,30 @@ def init() -> bool:
     if not EE_IMPORTED:
         _STATE["error"] = "earthengine-api-ն տեղադրված չէ"
         return False
-    if not settings.gee_project:
+    key_json, project = settings.gee_key_json.strip(), settings.gee_project
+    email = settings.gee_service_account
+    if key_json:
+        import json
+
+        try:
+            info = json.loads(key_json)
+        except ValueError:
+            _STATE["error"] = "GEE_SERVICE_ACCOUNT_JSON-ը ճիշտ JSON չէ․ ստուգեք, որ ամբողջ ֆայլն եք պատճենել"
+            return False
+        email = email or info.get("client_email", "")
+        project = project or info.get("project_id", "")
+    if not project:
         _STATE["error"] = "GEE_PROJECT-ը նշված չէ"
         return False
     try:
-        if settings.gee_service_account and settings.gee_key_file:
+        if key_json:
+            creds = ee.ServiceAccountCredentials(email, key_data=key_json)
+            ee.Initialize(creds, project=project)
+        elif settings.gee_service_account and settings.gee_key_file:
             creds = ee.ServiceAccountCredentials(settings.gee_service_account, settings.gee_key_file)
-            ee.Initialize(creds, project=settings.gee_project)
+            ee.Initialize(creds, project=project)
         else:
-            ee.Initialize(project=settings.gee_project)
+            ee.Initialize(project=project)
         _STATE.update(ready=True, error="")
     except Exception as exc:  # auth missing, project not registered, no network…
         _STATE["error"] = str(exc).splitlines()[0][:200]
